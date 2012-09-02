@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" id="WebApp_ID" version="3.0">
+  <display-name>ape</display-name>
+  
+  <filter>
+  <filter-name>filter</filter-name>
+  <filter-class>cn.org.ape.ApeFilter</filter-class>
+  <init-param>
+  <param-name>encoding</param-name>
+  <param-value>UTF-8</param-value>
+  </init-param>
+  
+  </filter>
+  
+  <servlet>
+    <servlet-name>servlet</servlet-name>
+    <servlet-class>cn.org.ape.ApeServlet</servlet-class>
+    <init-param>
+    <param-name>module</param-name>
+    <param-value>module.properties</param-value>
+    </init-param>
+    <!-- 是否使用 异步处理  默认是false 不使用-->
+    <async-supported>true</async-supported>
+    <multipart-config></multipart-config>
+  </servlet>
+  <filter-mapping>
+  <filter-name>filter</filter-name>
+  <url-pattern>/*</url-pattern>
+  </filter-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>servlet</servlet-name>
+    <url-pattern>/action/*</url-pattern>
+  </servlet-mapping>
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+    <welcome-file>index.htm</welcome-file>
+    <welcome-file>index.jsp</welcome-file>
+    <welcome-file>default.html</welcome-file>
+    <welcome-file>default.htm</welcome-file>
+    <welcome-file>default.jsp</welcome-file>
+  </welcome-file-list>
+</web-app>
