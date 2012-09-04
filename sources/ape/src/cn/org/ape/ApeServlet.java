@@ -1,10 +1,13 @@
 package cn.org.ape;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 
 import javax.servlet.ServletException;
@@ -13,14 +16,18 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.configuration.reloading.FileChangedReloadingStrategy;
 import org.apache.commons.lang.StringUtils;
+import org.objectweb.asm.ClassReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cn.org.ape.asm.ClassParsing;
+import cn.org.ape.context.BeanParameter;
 import cn.org.ape.http.HttpRequest;
 import cn.org.ape.http.HttpResponse;
 import cn.org.ape.http.RequestContext;
@@ -67,7 +74,19 @@ public class ApeServlet extends HttpServlet {
 		response.sendError(HttpResponse.SC_NOT_FOUND);//返回404
 		return ;
 	 }
+	ClassParsing cp = new ClassParsing() ;
+	System.out.println(StringUtils.replace(baseAction.getClass().toString(), "class ", "", 1));
+	//String io = baseAction.getClass().getResource("").getPath();
+	//System.out.println(io);
+	InputStream io=new FileInputStream("G:/work space/.metadata/.plugins/org.eclipse.wst.server.core/tmp0/wtpwebapps/ape/WEB-INF/classes/test/action/TestAction.class");
+	System.out.println(io);
+	System.out.println(this.getClass().getClassLoader().getResource( "test/action/TestAction.class").toString());
+	ClassReader cr = new ClassReader(io);
+	cr.accept(cp, 0);
+	Map map=cp.getMap();
 	baseAction.init(request, response); //初始化baseAction
+	PropertyUtils propertyUtils = new PropertyUtils();
+	BeanParameter.populate(baseAction, request,map);//初始化bean
 	if (StringUtils.isNotEmpty(action))
 	{
 		baseAction.run(); //执行

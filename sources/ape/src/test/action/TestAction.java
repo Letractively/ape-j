@@ -1,6 +1,7 @@
 package test.action;
 
 import java.io.IOException;
+import java.util.Date;
 
 import javax.servlet.ServletException;
 
@@ -27,10 +28,41 @@ public class TestAction extends BaseAction {
 	  log.debug("321");
 }
   public void login() throws IOException {
-	  String user = request.getParameter("user");
+	  
 	  response.setContentType("text/html; charset=UTF-8");
-	  System.out.println(user);
-	  response.getWriter().print(user);
+	  System.out.println(getUser().getName());
+	  System.out.println(id);
+	  System.out.println(date);
+	  response.getWriter().print(user.getName());
 }
 
+  private Date date ;
+  public Date getDate() {
+	return date;
+}
+
+public void setDate(Date date) {
+	this.date = date;
+}
+
+public Integer getId() {
+	return id;
+}
+
+public void setId(Integer id) {
+	this.id = id;
+}
+
+public User getUser() {
+	return user;
+}
+
+public void setUser(User user) {
+	this.user = user;
+}
+
+private Integer id ;
+ private User user ;
+  
+  
 }
