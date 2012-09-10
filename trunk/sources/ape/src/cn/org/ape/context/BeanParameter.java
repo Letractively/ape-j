@@ -1,9 +1,11 @@
 package cn.org.ape.context;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
@@ -13,6 +15,7 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.collections.map.ListOrderedMap;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang.time.DateUtils;
@@ -32,9 +35,9 @@ public class BeanParameter
 		this.request = request;
 		
 	}
-	public void populate(Object bean) 
+	public void populate(Object bean,Map m) 
 	{
-		//populate( bean, request);	
+		populate( bean, request,m);	
 	}
 	
 	/**
@@ -43,12 +46,14 @@ public class BeanParameter
 	 * @param request 前台页面传入的数据
 	 * @param m 
 	 */
-	public static void  populate(Object bean,HttpRequest request, Map m) 
+	@SuppressWarnings("static-access")
+	public static void  populate(Object bean,HttpRequest request, Map<?, ?> m) 
 	{
 		ListOrderedMap orderedMap = new ListOrderedMap();
-		Map map=request.getParameterMap();
+		Map<?, ?> map=request.getParameterMap();
 		orderedMap.putAll(map);
 		PropertyUtils propertyUtils = new PropertyUtils();
+		@SuppressWarnings("unchecked")
 		List<String> list=orderedMap.asList();
 		for (String string : list) 
 		{
@@ -60,10 +65,9 @@ public class BeanParameter
 				if (propertyUtils.isReadable(bean, string)&&propertyUtils.isWriteable(bean, string)&&objectString!=null)
 				{
 					try {
-						//Object object = propertyUtils.getProperty(bean, string);
-						//String objectString =object!=null?object.getClass().toString():"";
 						if (StringUtils.containsIgnoreCase(objectString, "java.lang.String")) 
 						{
+							//设置String
 							propertyUtils.setProperty(bean, string, request.getParameter(string));
 						}else if (StringUtils.containsIgnoreCase(objectString, "java.lang.Integer")
 								||StringUtils.containsIgnoreCase(objectString, "java.lang.Short")
@@ -75,6 +79,7 @@ public class BeanParameter
 								||StringUtils.containsIgnoreCase(objectString, "java.math.BigDecimal")) 
 						{
 							if (NumberUtils.isNumber(request.getParameter(string))) {
+								//设置Number
 								propertyUtils.setProperty(bean, string, NumberUtils.createNumber(request.getParameter(string)));
 							}
 							
@@ -83,6 +88,7 @@ public class BeanParameter
 							String s = request.getParameter(string);
 							if (StringUtils.isNotEmpty(s))
 							{
+								//设置时间
 								String[] parsePatterns ={"yyyy/MM/dd","yyyy/MM/dd HH:mm:ss",
 										"yyyy.MM.dd","yyyy.MM.dd HH:mm:ss", 
 										"yyyy-MM-dd","yyyy-MM-dd HH:mm:ss",
@@ -101,7 +107,7 @@ public class BeanParameter
 					} catch (IllegalAccessException | InvocationTargetException
 							| NoSuchMethodException e) {
 					
-						e.printStackTrace();
+						log.error("给类{}赋值错误！",bean);
 					}
 				}
 			}else if (name.length==2) 
@@ -114,12 +120,23 @@ public class BeanParameter
 						Object object=Class.forName(objectString).newInstance();
 						if (propertyUtils.isReadable(bean, name[0])&&propertyUtils.isWriteable(bean, name[0])) 
 						{
-							propertyUtils.setProperty(bean, name[0], object);
-							ClassParsing cp = new ClassParsing() ;
-							InputStream io=new FileInputStream("G:/work space/.metadata/.plugins/org.eclipse.wst.server.core/tmp0/wtpwebapps/ape/WEB-INF/classes/test/action/User.class");
-							ClassReader cr = new ClassReader(io);
-							cr.accept(cp, 0);
-							Map ma=cp.getMap();
+							if (PropertyUtils.getProperty(bean, name[0]) == null)
+				              {
+								//如果没有初始化，求初始
+				                PropertyUtils.setProperty(bean, name[0], object);
+				              }
+				              ClassParsing cp = new ClassParsing();
+				              ClassLoader classloader = object.getClass().getClassLoader();
+				              if (classloader != null) {
+				                URL url = classloader.getResource(StringUtils.replace(object.getClass().getName(), ".", "/") + ".class");
+				                File file = FileUtils.toFile(url);
+				                if (file != null)
+				                {
+				                  ClassReader cr = new ClassReader(FileUtils.openInputStream(file));
+				                  cr.accept(cp, 0);
+				                }
+				              }
+							Map<?, ?> ma=cp.getMap();
 							String ob= (String) ma.get(name[1]);
 							if (propertyUtils.isReadable(bean, string)&&propertyUtils.isWriteable(bean, string)&&ob!=null)
 							{
@@ -167,8 +184,7 @@ public class BeanParameter
 					
 					} catch (InstantiationException | IllegalAccessException
 							| ClassNotFoundException | InvocationTargetException | NoSuchMethodException | IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						log.error("给类{}赋值错误！",bean);
 					}
 				}
 			}
@@ -184,7 +200,7 @@ public class BeanParameter
 	 */
 	public static void setBean(Object bean,HttpRequest request)
 	{
-		Map properties = request.getParameterMap();
+		Map<?, ?> properties = request.getParameterMap();
 		try {
 			BeanUtils.populate(bean, properties );
 		} catch (IllegalAccessException | InvocationTargetException e) {

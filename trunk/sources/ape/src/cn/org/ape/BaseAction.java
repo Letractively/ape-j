@@ -6,11 +6,8 @@ import java.lang.reflect.InvocationTargetException;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +17,11 @@ import cn.org.ape.http.HttpResponse;
 
 
 
-
+/**
+ * 所以的action类的父类
+ * @author 陈磊
+ *
+ */
 public  abstract class BaseAction  
 {
 
@@ -34,6 +35,11 @@ public  abstract class BaseAction
 	protected HttpSession session;
 	
 	
+	/**
+	 * 初始化
+	 * @param request
+	 * @param response
+	 */
 	public void init(HttpRequest request, HttpResponse response) {
 		this.request = request;
 		this.response = response;
@@ -41,11 +47,16 @@ public  abstract class BaseAction
 		this.session = request.getSession();
 	}
 	
+	/**
+	 * 执行的类
+	 * @throws ServletException
+	 * @throws IOException
+	 */
 	protected  void run() throws ServletException, IOException
 	{
 		String action = request.getAction();
 		try {
-			
+			//aop调用 执行 action 方法
 			this.getClass().getMethod(action, NO_ARGS_CLASS).invoke(this, NO_ARGS_OBJECT);
 			
 			
@@ -61,7 +72,12 @@ public  abstract class BaseAction
 	{
 		
 	}
-
+	
+	/**
+	 * 默认执行的方法
+	 * @throws ServletException
+	 * @throws IOException
+	 */
 	protected void execute() throws ServletException, IOException 
 	{
 		log.error("{} 类中 没有继承 execute() 方法 \n" ,this.getClass());
