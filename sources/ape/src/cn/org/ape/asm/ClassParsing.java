@@ -8,9 +8,14 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Opcodes;
 
+/**
+ * 通过asm 取得类中的变量
+ * @author 陈磊
+ *
+ */
 public  class ClassParsing extends ClassVisitor {
 
-	private Map map = new HashMap();
+	private Map<String, String> map = new HashMap<String, String>();
 	public ClassParsing() 
 	{
 		super(Opcodes.ASM4);
@@ -19,7 +24,6 @@ public  class ClassParsing extends ClassVisitor {
 	@Override
 	public FieldVisitor visitField(int access, String name, String desc,
 			String signature, Object value) {
-		System.out.println(" " + desc + " " + name);
 		String string = StringChange.getString(desc);
 		if(StringUtils.isNotEmpty(string))
 		{
@@ -29,7 +33,11 @@ public  class ClassParsing extends ClassVisitor {
 		return null;
 	}
 	
-	public Map getMap() {
+	/**
+	 * 取得 属性名称和属性类型
+	 * @return
+	 */
+	public Map<String, String> getMap() {
 		return map;
 		
 	}

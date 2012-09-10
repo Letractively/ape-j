@@ -3,6 +3,11 @@ package cn.org.ape.asm;
 import org.apache.commons.collections.map.ListOrderedMap;
 import org.apache.commons.lang.StringUtils;
 
+/**
+ * 把asm 取得的属性类型转成Java的
+ * @author 陈磊
+ *
+ */
 public class StringChange 
 {
   private static ListOrderedMap listOrderedMap = new ListOrderedMap();

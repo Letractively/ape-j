@@ -22,6 +22,28 @@ import cn.org.ape.http.HttpResponse;
 import cn.org.ape.http.RequestContext;
 import cn.org.ape.http.ResponseContext;
 
+/**
+ * 主要是要是用于过滤编码 <br>
+ * 默认的编码是UTF-8<br>
+ * 同时也可以通过配置文件配置 如：<br>
+ *  <filter><br>
+ * <filter-name>filter</filter-name><br>
+ * <filter-class>cn.org.ape.ApeFilter</filter-class><br>
+ * <init-param><br>
+ * <param-name>encoding</param-name><br>
+ * <param-value>UTF-8</param-value><br>
+ * </init-param><br>
+ * <br><br>
+ * </filter><br>
+ * <br>
+ * <filter-mapping><br>
+ * <filter-name>filter</filter-name><br>
+ * <url-pattern>/*</url-pattern><br>
+ * </filter-mapping><br>
+ * 
+ * @author 陈磊
+ *
+ */
 @WebFilter(urlPatterns="/servlet/*",
 	initParams={@WebInitParam(name="encoding",value = "UTF-8")})
 public class ApeFilter implements Filter {

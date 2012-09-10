@@ -1,11 +1,9 @@
 package cn.org.ape;
 
-import java.io.FileInputStream;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Method;
+import java.net.URL;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -16,11 +14,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.beanutils.PropertyUtils;
+
 import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.configuration.reloading.FileChangedReloadingStrategy;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.objectweb.asm.ClassReader;
 import org.slf4j.Logger;
@@ -33,10 +32,32 @@ import cn.org.ape.http.HttpResponse;
 import cn.org.ape.http.RequestContext;
 import cn.org.ape.http.ResponseContext;
 
-import test.action.TestAction;
 
 /**
- * Servlet implementation class ActionServlet
+ * Servlet的接口 默认的URL :servlet/*<br>
+ * 同时也可以配置文件 如：<br >
+ * 
+ *  <br >
+ * <servlet><br >
+ *   <servlet-name>servlet</servlet-name><br >
+ *   <servlet-class>cn.org.ape.ApeServlet</servlet-class><br >
+ *   <init-param><br >
+ *   <param-name>module</param-name><br >
+ *   <param-value>module.properties</param-value><br >
+ *   </init-param><br >
+ *   <!-- 是否使用 异步处理  默认是false 不使用-->
+ *   <async-supported>true</async-supported><br >
+ *   <multipart-config></multipart-config><br >
+ * </servlet><br >
+ * <br >
+ * <br >
+  * <servlet-mapping><br >
+ *   <servlet-name>servlet</servlet-name><br >
+ *   <url-pattern>/action/*</url-pattern><br >
+ * </servlet-mapping><br >
+ * <br >
+ * @author 陈磊
+ *
  */
 @WebServlet(urlPatterns= "/servlet/*")
 public class ApeServlet extends HttpServlet {
@@ -49,7 +70,6 @@ public class ApeServlet extends HttpServlet {
 	 */
 	@Override
 	public void init() throws ServletException {
-		// TODO Auto-generated method stub
 		super.init();
 		String module = getInitParameter("module"); //<init-param>
 		if (module==null) 
@@ -65,27 +85,33 @@ public class ApeServlet extends HttpServlet {
 		throws ServletException, IOException {
 	  HttpRequest request=new RequestContext(req);
 	  HttpResponse response = new ResponseContext(resp);
-	 String module= request.getModule();
-	 String action= request.getAction(); 
-	 BaseAction baseAction = modules.get(module);
+	 String module= request.getModule();//取得调用类
+	 String action= request.getAction();  //取得调方法
+	 BaseAction baseAction = modules.get(module); //初始调用类
 	 if (baseAction==null) 
 	 {
 		 //没有找到Module 返回404
 		response.sendError(HttpResponse.SC_NOT_FOUND);//返回404
 		return ;
 	 }
-	ClassParsing cp = new ClassParsing() ;
-	System.out.println(StringUtils.replace(baseAction.getClass().toString(), "class ", "", 1));
-	//String io = baseAction.getClass().getResource("").getPath();
-	//System.out.println(io);
-	InputStream io=new FileInputStream("G:/work space/.metadata/.plugins/org.eclipse.wst.server.core/tmp0/wtpwebapps/ape/WEB-INF/classes/test/action/TestAction.class");
-	System.out.println(io);
-	System.out.println(this.getClass().getClassLoader().getResource( "test/action/TestAction.class").toString());
-	ClassReader cr = new ClassReader(io);
-	cr.accept(cp, 0);
-	Map map=cp.getMap();
+	 	
+	 //通过asm 把request的属性赋值到调用类中属性中
+	  ClassParsing cp = new ClassParsing();
+	  ClassLoader classloader = baseAction.getClass().getClassLoader();
+	  if (classloader != null)
+	    {
+		  //取得调用类的url
+	      URL url = classloader.getResource(StringUtils.replace(baseAction.getClass().getName(), ".", "/") + ".class");
+	      File file = FileUtils.toFile(url);
+	      if (file != null)
+	      {
+	        ClassReader cr = new ClassReader(FileUtils.openInputStream(file));
+	        cr.accept(cp, 0);
+	      }
+
+	    }
+	Map<?, ?> map=cp.getMap();
 	baseAction.init(request, response); //初始化baseAction
-	PropertyUtils propertyUtils = new PropertyUtils();
 	BeanParameter.populate(baseAction, request,map);//初始化bean
 	if (StringUtils.isNotEmpty(action))
 	{
@@ -158,7 +184,5 @@ public class ApeServlet extends HttpServlet {
  
 
   private final static HashMap<String, BaseAction> modules = new HashMap<String, BaseAction>();
-
-  private final static HashMap<String, Method> methods = new HashMap<String, Method>();
 
 }
