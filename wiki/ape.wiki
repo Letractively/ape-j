@@ -1,0 +1,1 @@
+Ape（猿人，模仿者），由于基于Java EE最基础的Servlet和模仿其他的Web架构而得名，有时也叫Ape-J 。该软件是国内的一个开源的Java EE架构，基于LGPL协议，同时也支持MVC模式。 Ape基于Servlet封装的Web框架，是基于MVC 模型(model)－视图(view)－控制器(controller) 中控制器处理。利用了AOP(也叫面向方面)：Aspect Oriented Programming可以对业务逻辑的各个部分进行隔离，从而使得业务逻辑各部分之间的耦合度降低，提高程序的可重用性，同时提高了开发的效率。
