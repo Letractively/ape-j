@@ -173,8 +173,15 @@ public class ApeServlet extends HttpServlet {
 	  try {
 		BaseAction baseAction = (BaseAction) Class.forName(moduleClass).newInstance();
 		return baseAction;
-	} catch (InstantiationException | IllegalAccessException
-			| ClassNotFoundException e) {
+	} catch (InstantiationException e){
+		log.error("不存在 ：{} 类\n"+e,moduleClass);
+		return null;
+	}
+	  catch (IllegalAccessException e){
+		  log.error("不存在 ：{} 类\n"+e,moduleClass);
+			return null;
+	  }
+		catch (ClassNotFoundException e) {
 		log.error("不存在 ：{} 类\n"+e,moduleClass);
 		return null;
 		
