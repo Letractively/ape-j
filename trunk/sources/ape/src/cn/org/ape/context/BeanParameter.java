@@ -33,7 +33,8 @@ public class BeanParameter
 		this.request = request;
 		
 	}
-	public void populate(Object bean,Map m) 
+	@SuppressWarnings("rawtypes")
+	public void populate(Object bean, Map m) 
 	{
 		populate( bean, request,m);	
 	}
