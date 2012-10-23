@@ -103,9 +103,12 @@ public class BeanParameter
 							}	
 						}
 						
-					} catch (IllegalAccessException | InvocationTargetException
-							| NoSuchMethodException e) {
-					
+					} catch (IllegalAccessException e)
+					{log.error("给类{}赋值错误！",bean);}
+					catch (InvocationTargetException e)
+					{log.error("给类{}赋值错误！",bean);}
+					catch ( NoSuchMethodException e) 
+					{
 						log.error("给类{}赋值错误！",bean);
 					}
 				}
@@ -181,8 +184,13 @@ public class BeanParameter
 						}
 					
 					
-					} catch (InstantiationException | IllegalAccessException
-							| ClassNotFoundException | InvocationTargetException | NoSuchMethodException | IOException e) {
+					} 
+					catch (InstantiationException e ){}
+					catch (IllegalAccessException e){}
+					catch (ClassNotFoundException e){} 
+					catch (InvocationTargetException e){}
+					catch (NoSuchMethodException e){}
+					catch (IOException e) {
 						log.error("给类{}赋值错误！",bean);
 					}
 				}
@@ -200,11 +208,15 @@ public class BeanParameter
 	public static void setBean(Object bean,HttpRequest request)
 	{
 		Map<?, ?> properties = request.getParameterMap();
-		try {
-			BeanUtils.populate(bean, properties );
-		} catch (IllegalAccessException | InvocationTargetException e) {
-			log.error("初始化数据");
-		}
+	
+			try {
+				BeanUtils.populate(bean, properties );
+			} catch (IllegalAccessException e) {
+				log.error("初始化数据");
+			} catch (InvocationTargetException e) {
+				log.error("初始化数据");
+			}
+		
 	}
 	
 

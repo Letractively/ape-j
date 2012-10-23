@@ -40,11 +40,15 @@ public class HttpContext
 	 * @param uri 跳转的相对路径 如：input.jsp
 	 */
 	public static void forward(HttpRequest request,HttpResponse response,String uri) {
-		try {
-			request.getRequestDispatcher(uri).forward(request, response);
-		} catch (ServletException | IOException e) {
-			log.error("访问的URI{}不存在！\n"+e,uri);
-		}
+		
+			try {
+				request.getRequestDispatcher(uri).forward(request, response);
+			} catch (ServletException e) {
+				log.error("访问的URI{}不存在！\n"+e,uri);
+			} catch (IOException e) {
+				log.error("访问的URI{}不存在！\n"+e,uri);
+			}
+		
 		return;
 	}
 	

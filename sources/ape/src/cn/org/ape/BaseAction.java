@@ -60,9 +60,24 @@ public  abstract class BaseAction
 			this.getClass().getMethod(action, NO_ARGS_CLASS).invoke(this, NO_ARGS_OBJECT);
 			
 			
-		} catch (IllegalAccessException | IllegalArgumentException
-				| InvocationTargetException | NoSuchMethodException
-				| SecurityException e) {
+		} catch (IllegalAccessException e){
+			log.error("{} 类中 没有实现 {} 方法 \n" + e,this.getClass(),action);
+			response.sendError(HttpResponse.SC_NOT_FOUND);//返回404
+		}
+		catch (IllegalArgumentException e){
+			log.error("{} 类中 没有实现 {} 方法 \n" + e,this.getClass(),action);
+			response.sendError(HttpResponse.SC_NOT_FOUND);//返回404
+		}
+		
+		catch (InvocationTargetException e){
+			log.error("{} 类中 没有实现 {} 方法 \n" + e,this.getClass(),action);
+			response.sendError(HttpResponse.SC_NOT_FOUND);//返回404
+		}
+		catch ( NoSuchMethodException e){
+			log.error("{} 类中 没有实现 {} 方法 \n" + e,this.getClass(),action);
+			response.sendError(HttpResponse.SC_NOT_FOUND);//返回404
+		}
+		catch (SecurityException e) {
 			log.error("{} 类中 没有实现 {} 方法 \n" + e,this.getClass(),action);
 			response.sendError(HttpResponse.SC_NOT_FOUND);//返回404
 		}
@@ -113,7 +128,11 @@ public  abstract class BaseAction
 	public void forward(String uri) {
 		try {
 			request.getRequestDispatcher(uri).forward(request, response);
-		} catch (ServletException | IOException e) {
+		} 
+		catch (ServletException e){
+			log.error("访问的URI{}不存在！\n"+e,uri);
+		}
+		catch (IOException e) {
 			log.error("访问的URI{}不存在！\n"+e,uri);
 		}
 		return;
